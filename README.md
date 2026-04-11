@@ -120,14 +120,52 @@ fastapi dev src/main.py
 <!-- ROADMAP -->
 ## Roadmap
 
-[TODO]
+* [ ] Backend API routes for managing database
+* [ ] Load content from database
+* [ ] Admin portal
+  * [ ] Authentication
+  * [ ] Managing flavors
+* [ ] In-store screen menus
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTRIBUTING -->
 ## Contributing
 
-[TODO]
+To keep everyone's code safe, we use a branch-and-pull-request workflow. Please follow these steps every time you contribute.
+
+---
+
+### 1. Create your own branch
+
+Never commit directly to `main`. Create a branch named after yourself or the feature you're working on:
+
+```bash
+git checkout -b your-name/feature-description
+# Example: git checkout -b alex/login-page
+```
+
+### 2. Make your changes
+
+Work only on your branch. Commit often with clear messages:
+
+```bash
+git add .
+git commit -m "Add login form with validation"
+```
+
+### 3. Push your branch to GitHub
+
+```bash
+git pull origin main
+git push origin your-name/feature-description
+```
+
+### 4. Open a Pull Request and Merge
+
+1. Go to the repository on GitHub.
+2. Click **Compare & pull request** next to your branch.
+3. Merge your pull request if there are no conflicts.
 
 ### Top contributors
 
@@ -141,12 +179,6 @@ fastapi dev src/main.py
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-shield]: https://img.shields.io/github/contributors/babikerb/rogers-homemade-ice-cream.svg?style=for-the-badge
 [contributors-url]: https://github.com/babikerb/rogers-homemade-ice-cream/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/babikerb/rogers-homemade-ice-cream.svg?style=for-the-badge
-[forks-url]: https://github.com/babikerb/rogers-homemade-ice-cream/network/members
-[stars-shield]: https://img.shields.io/github/stars/babikerb/rogers-homemade-ice-cream.svg?style=for-the-badge
-[stars-url]: https://github.com/babikerb/rogers-homemade-ice-cream/stargazers
 [issues-shield]: https://img.shields.io/github/issues/babikerb/rogers-homemade-ice-cream.svg?style=for-the-badge
 [issues-url]: https://github.com/babikerb/rogers-homemade-ice-cream/issues
-[license-shield]: https://img.shields.io/github/license/babikerb/rogers-homemade-ice-cream.svg?style=for-the-badge
-[license-url]: https://github.com/babikerb/rogers-homemade-ice-cream/blob/master/LICENSE.txt
 [product-screenshot]: images/screenshot.png
