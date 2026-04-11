@@ -29,7 +29,8 @@
     <li>
       <a href="#about-the-project">About The Project</a>
       <ul>
-        <li><a href="#built-with">Built With</a></li>
+        <li><a href="#built-with">Built With</a></li>A portal for managing Roger's Homemade Ice Cream website.
+        
       </ul>
     </li>
     <li>
@@ -68,29 +69,103 @@ This project is being built to help [Roger's Homemade Ice Cream](https://rogersh
 <!-- GETTING STARTED -->
 ## Getting Started
 
-[TODO]
+Make sure that you have installed everything in the Prerequisites section and that the software is running. Once you have the prerequisites, follow the Installation section.
 
 ### Prerequisites
 
-[TODO]
+1. Install [Postgres](https://www.postgresql.org/download/) database.
 
 ### Installation
 
-[TODO]
+Clone the repository
+
+```bash
+git clone https://github.com/babikerb/rogers-homemade-ice-cream.git
+# or
+git clone git@github.com:babikerb/rogers-homemade-ice-cream.git
+```
+
+Setup frontend
+
+```bash
+# Move to frontend directory
+cd frontend/
+# Install dependencies
+pnpm install
+# Run nextjs app
+pnpm run dev
+# Visit http://localhost:3000 in browser
+```
+
+Open another terminal to run the backend. Leave the frontend running.
+
+```bash
+# Go to backend directory
+cd rogers-homemade-ice-cream/backend/database/
+# Run postgres setup script
+sudo -u postgres psql -f setup.sql
+# Go to api directory
+cd ../api
+# Setup python virtual environment
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+# Run fastapi
+fastapi dev src/main.py
+# You can view interface at http://127.0.0.1:8000/docs/
+```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ROADMAP -->
 ## Roadmap
 
-[TODO]
+* [ ] Backend API routes for managing database
+* [ ] Load content from database
+* [ ] Admin portal
+  * [ ] Authentication
+  * [ ] Managing flavors
+* [ ] In-store screen menus
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTRIBUTING -->
 ## Contributing
 
-[TODO]
+To keep everyone's code safe, we use a branch-and-pull-request workflow. Please follow these steps every time you contribute.
+
+---
+
+### 1. Create your own branch
+
+Never commit directly to `main`. Create a branch named after yourself or the feature you're working on:
+
+```bash
+git checkout -b your-name/feature-description
+# Example: git checkout -b alex/login-page
+```
+
+### 2. Make your changes
+
+Work only on your branch. Commit often with clear messages:
+
+```bash
+git add .
+git commit -m "Add login form with validation"
+```
+
+### 3. Push your branch to GitHub
+
+```bash
+git pull origin main
+git push origin your-name/feature-description
+```
+
+### 4. Open a Pull Request and Merge
+
+1. Go to the repository on GitHub.
+2. Click **Compare & pull request** next to your branch.
+3. Merge your pull request if there are no conflicts.
 
 ### Top contributors
 
@@ -104,12 +179,6 @@ This project is being built to help [Roger's Homemade Ice Cream](https://rogersh
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-shield]: https://img.shields.io/github/contributors/babikerb/rogers-homemade-ice-cream.svg?style=for-the-badge
 [contributors-url]: https://github.com/babikerb/rogers-homemade-ice-cream/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/babikerb/rogers-homemade-ice-cream.svg?style=for-the-badge
-[forks-url]: https://github.com/babikerb/rogers-homemade-ice-cream/network/members
-[stars-shield]: https://img.shields.io/github/stars/babikerb/rogers-homemade-ice-cream.svg?style=for-the-badge
-[stars-url]: https://github.com/babikerb/rogers-homemade-ice-cream/stargazers
 [issues-shield]: https://img.shields.io/github/issues/babikerb/rogers-homemade-ice-cream.svg?style=for-the-badge
 [issues-url]: https://github.com/babikerb/rogers-homemade-ice-cream/issues
-[license-shield]: https://img.shields.io/github/license/babikerb/rogers-homemade-ice-cream.svg?style=for-the-badge
-[license-url]: https://github.com/babikerb/rogers-homemade-ice-cream/blob/master/LICENSE.txt
 [product-screenshot]: images/screenshot.png
