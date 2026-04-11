@@ -29,7 +29,8 @@
     <li>
       <a href="#about-the-project">About The Project</a>
       <ul>
-        <li><a href="#built-with">Built With</a></li>
+        <li><a href="#built-with">Built With</a></li>A portal for managing Roger's Homemade Ice Cream website.
+        
       </ul>
     </li>
     <li>
@@ -68,15 +69,51 @@ This project is being built to help [Roger's Homemade Ice Cream](https://rogersh
 <!-- GETTING STARTED -->
 ## Getting Started
 
-[TODO]
+Make sure that you have installed everything in the Prerequisites section and that the software is running. Once you have the prerequisites, follow the Installation section.
 
 ### Prerequisites
 
-[TODO]
+1. Install [Postgres](https://www.postgresql.org/download/) database.
 
 ### Installation
 
-[TODO]
+Clone the repository
+
+```bash
+git clone https://github.com/babikerb/rogers-homemade-ice-cream.git
+# or
+git clone git@github.com:babikerb/rogers-homemade-ice-cream.git
+```
+
+Setup frontend
+
+```bash
+# Move to frontend directory
+cd frontend/
+# Install dependencies
+pnpm install
+# Run nextjs app
+pnpm run dev
+# Visit http://localhost:3000 in browser
+```
+
+Open another terminal to run the backend. Leave the frontend running.
+
+```bash
+# Go to backend directory
+cd rogers-homemade-ice-cream/backend/database/
+# Run postgres setup script
+sudo -u postgres psql -f setup.sql
+# Go to api directory
+cd ../api
+# Setup python virtual environment
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+# Run fastapi
+fastapi dev src/main.py
+# You can view interface at http://127.0.0.1:8000/docs/
+```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
