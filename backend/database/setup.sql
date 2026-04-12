@@ -107,7 +107,7 @@ INSERT INTO shop (
   '(657) 335-9987',
   'rogershomemadeicecream',
   720,
-  1020
+  1260
 );
 
 WITH admin AS (

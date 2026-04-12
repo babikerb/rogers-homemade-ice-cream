@@ -53,19 +53,29 @@ const getFormattedDate = () => {
   return `${dateStr}${suffix}`;
 };
 
-const getStatus = () => {
+const getStatus = (openMinutes: number, closeMinutes: number) => {
   const now = new Date();
   const pstDate = new Date(
     now.toLocaleString("en-US", { timeZone: "America/Los_Angeles" }),
   );
-  const hours = pstDate.getHours();
-  return hours >= 12 && hours < 21
+  const currentMinutes = pstDate.getHours() * 60 + pstDate.getMinutes();
+  return currentMinutes >= openMinutes && currentMinutes < closeMinutes
     ? { text: "OPEN NOW", color: "#2E7D32", active: true }
     : { text: "CLOSED", color: "#C62828", active: false };
 };
 
+const formatMinuteTime = (minutes: number): string => {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  const ampm = h >= 12 ? "pm" : "am";
+  const hour = h % 12 === 0 ? 12 : h % 12;
+  return m === 0 ? `${hour}:00${ampm}` : `${hour}:${String(m).padStart(2, "0")}${ampm}`;
+};
+
 export default function RogersHomemade() {
   const [selectedFlavor, setSelectedFlavor] = useState<string | null>(null);
+  const [shop, setShop] = useState<{ street: String, city: String, state: String, phone_number: String, instagram: String, open_time: number; close_time: number } | null>(null);
+  const [flavorCount, setFlavorCount] = useState<number>(10);
   const [status, setStatus] = useState<{
     text: string;
     color: string;
@@ -79,13 +89,41 @@ export default function RogersHomemade() {
 
   useEffect(() => {
     setMounted(true);
-    setStatus(getStatus());
+    if (shop?.open_time) {
+      setStatus(getStatus(shop?.open_time, shop?.close_time));
+    }
     setCurrentDate(getFormattedDate());
     const timer = setInterval(() => {
-      setStatus(getStatus());
+      if (shop?.open_time) {
+        setStatus(getStatus(shop?.open_time, shop?.close_time));
+      }
       setCurrentDate(getFormattedDate());
     }, 60000);
     return () => clearInterval(timer);
+  }, [shop]);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/shop/1")
+      .then((res) => res.json())
+      .then((data) => {
+        setShop({
+          street: data.shop.street,
+          city: data.shop.city,
+          state: data.shop.state,
+          phone_number: data.shop.phone_number,
+          instagram: data.shop.instagram,
+          open_time: data.shop.open_time,
+          close_time: data.shop.close_time,
+        });
+      });
+  }, []);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/flavors/count")
+      .then((res) => res.json())
+      .then((data) => {
+        setFlavorCount(data.flavor_count);
+      });
   }, []);
 
   if (!mounted) return null;
@@ -197,7 +235,9 @@ export default function RogersHomemade() {
                 fontSize: { xs: "1.4rem", md: "1.8rem" },
               }}
             >
-              12:00pm — 9:00pm
+              {shop
+                ? `${formatMinuteTime(shop.open_time)} — ${formatMinuteTime(shop.close_time)}`
+                : "Loading..."}
             </Typography>
           </Box>
         </Stack>
@@ -245,7 +285,8 @@ export default function RogersHomemade() {
 
           <Button
             variant="outlined"
-            href="https://www.instagram.com/rogershomemadeicecream/"
+            href={`https://www.instagram.com/${shop?.instagram}/`}
+            disabled={!shop}
             target="_blank"
             startIcon={<Instagram />}
             sx={{
@@ -308,7 +349,7 @@ export default function RogersHomemade() {
                 }}
               >
                 Homemade <br />{" "}
-                <span style={{ color: LOGO_BLUE }}>In Orange, CA.</span>
+                <span style={{ color: LOGO_BLUE }}>In {shop?.city}, {shop?.state}.</span>
               </Typography>
               <Typography
                 sx={{
@@ -332,7 +373,7 @@ export default function RogersHomemade() {
                 }}
               >
                 <Typography variant="h5" fontWeight={900} mb={2}>
-                  60+ Flavors
+                  {flavorCount - (flavorCount % 10)}+ Flavors
                 </Typography>
                 <Typography sx={{ lineHeight: 1.6 }}>
                   From classic Vanilla Bean to our signature Taro and Fruity
