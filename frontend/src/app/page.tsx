@@ -27,17 +27,23 @@ const LOGO_PINK = "#FF99AA";
 const DEEP_PINK = "#D81B60";
 const WAFFLE_BROWN = "#5D3A1A";
 const OFF_WHITE = "#FAF9F6";
+const FLAVORS_PREVIEW_COUNT = 16;
+const ROTATION_INTERVAL = 20000;
 
-const CORE_FLAVORS = [
-  "Vanilla",
-  "Chocolate Oreo",
-  "Strawberry Cheesecake",
-  "Taro",
-  "Fruity Pebbles",
-  "Mint Chip",
-  "Cookie Dough",
-  "Butter Pecan",
-];
+type FlavorEntry = {
+  flavor_name: string;
+  description: string | null;
+  updated_at: string;
+};
+type MenuCategory = {
+  img_url: string | null;
+  flavors: FlavorEntry[];
+};
+type Menu = {
+  flavors: {
+    [category: string]: MenuCategory;
+  };
+};
 
 const getFormattedDate = () => {
   const now = new Date();
@@ -75,6 +81,10 @@ const formatMinuteTime = (minutes: number): string => {
 export default function RogersHomemade() {
   const [selectedFlavor, setSelectedFlavor] = useState<string | null>(null);
   const [shop, setShop] = useState<{ street: String, city: String, state: String, phone_number: String, instagram: String, open_time: number; close_time: number } | null>(null);
+  const [menu, setMenu] = useState<Menu | null>(null);
+  const [activeCategory, setActiveCategory] = useState(0);
+  const [rotationProgress, setRotationProgress] = useState(0);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [flavorCount, setFlavorCount] = useState<number>(10);
   const [status, setStatus] = useState<{
     text: string;
@@ -86,6 +96,9 @@ export default function RogersHomemade() {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const categoriesWithFlavors = menu
+    ? Object.entries(menu.flavors).filter(([_, cat]) => cat.flavors.length > 0)
+    : [];
 
   useEffect(() => {
     setMounted(true);
@@ -125,6 +138,33 @@ export default function RogersHomemade() {
         setFlavorCount(data.flavor_count);
       });
   }, []);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/flavors/all")
+      .then((res) => res.json())
+      .then((data) => {
+        setMenu(data);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (categoriesWithFlavors.length === 0) return;
+    setRotationProgress(0);
+
+    const progressTimer = setInterval(() => {
+      setRotationProgress((prev) => Math.min(prev + 100 / (ROTATION_INTERVAL / 100), 100));
+    }, 100);
+
+    const rotationTimer = setInterval(() => {
+      setActiveCategory((prev) => (prev + 1) % categoriesWithFlavors.length);
+      setRotationProgress(0);
+    }, ROTATION_INTERVAL);
+
+    return () => {
+      clearInterval(progressTimer);
+      clearInterval(rotationTimer);
+    };
+  }, [activeCategory, categoriesWithFlavors.length]);
 
   if (!mounted) return null;
 
@@ -395,57 +435,241 @@ export default function RogersHomemade() {
           <Typography variant="h2" textAlign="center" fontWeight={900} mb={1}>
             MENU
           </Typography>
-          <Typography
-            variant="h6"
-            textAlign="center"
-            color={WAFFLE_BROWN}
-            mb={6}
-          >
-            Click on a flavor to see details! Note: not all flavors are
-            implemented here right now.
+          <Typography variant="h6" textAlign="center" color={WAFFLE_BROWN} mb={4}>
+            We offer{" "}
+            {categoriesWithFlavors.map(([name, cat], index) => (
+              <span key={name}>
+                <span style={{ color: LOGO_BLUE, fontWeight: 900 }}>
+                  {cat.flavors.length - (cat.flavors.length % 10)}+ {name}
+                </span>
+                {index < categoriesWithFlavors.length - 2
+                  ? ", "
+                  : index < categoriesWithFlavors.length - 1
+                    ? " and "
+                    : ""}
+              </span>
+            ))}{" "}
+            flavors. Use the tabs below to browse, or click any flavor for details!
           </Typography>
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: { xs: "1fr 1fr", md: "1fr 1fr 1fr 1fr" },
-              gap: 3,
-            }}
-          >
-            {CORE_FLAVORS.map((flavor) => (
-              <Paper
-                key={flavor}
-                component="button"
-                onClick={() => setSelectedFlavor(flavor)}
+
+          {/* Category tabs */}
+          <Stack direction="row" justifyContent="center" spacing={2} mb={3}>
+            {categoriesWithFlavors.map(([categoryName], index) => (
+              <Button
+                key={categoryName}
+                onClick={() => {
+                  setActiveCategory(index);
+                  setRotationProgress(0);
+                }}
+                variant={activeCategory === index ? "contained" : "outlined"}
                 sx={{
-                  all: "unset",
-                  cursor: "pointer",
-                  bgcolor: "white",
-                  p: 4,
-                  borderRadius: 4,
-                  textAlign: "center",
-                  border: `1px solid ${alpha(WAFFLE_BROWN, 0.1)}`,
-                  transition: "0.3s",
-                  "&:hover": {
-                    borderColor: LOGO_BLUE,
-                    transform: "translateY(-5px)",
-                    boxShadow: `0 10px 20px ${alpha(LOGO_BLUE, 0.1)}`,
-                  },
+                  borderRadius: "50px",
+                  fontWeight: 900,
+                  px: 3,
+                  ...(activeCategory === index
+                    ? {
+                      bgcolor: LOGO_BLUE,
+                      color: "white",
+                      boxShadow: `0 4px 14px ${alpha(LOGO_BLUE, 0.4)}`,
+                      "&:hover": { bgcolor: "#2990D6" },
+                    }
+                    : {
+                      borderColor: alpha(WAFFLE_BROWN, 0.3),
+                      color: WAFFLE_BROWN,
+                      "&:hover": {
+                        borderColor: LOGO_BLUE,
+                        color: LOGO_BLUE,
+                        bgcolor: alpha(LOGO_BLUE, 0.05),
+                      },
+                    }),
                 }}
               >
-                <Typography variant="subtitle1" fontWeight={900}>
-                  {flavor.toUpperCase()}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ color: LOGO_PINK, fontWeight: 800 }}
-                >
-                  SIGNATURE
-                </Typography>
-              </Paper>
+                {categoryName}
+              </Button>
             ))}
+          </Stack>
+
+          {/* Progress bar */}
+          <Box
+            sx={{
+              width: "100%",
+              height: 4,
+              bgcolor: alpha(WAFFLE_BROWN, 0.1),
+              borderRadius: 2,
+              mb: 6,
+              overflow: "hidden",
+            }}
+          >
+            <Box
+              sx={{
+                height: "100%",
+                width: `${rotationProgress}%`,
+                bgcolor: LOGO_BLUE,
+                borderRadius: 2,
+                transition: "width 0.1s linear",
+              }}
+            />
           </Box>
+
+          {/* Flavor grid - preview only */}
+          {categoriesWithFlavors.length > 0 && (
+            <>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr 1fr", md: "1fr 1fr 1fr 1fr" },
+                  gap: 3,
+                  mb: 4,
+                }}
+              >
+                {categoriesWithFlavors[activeCategory][1].flavors
+                  .slice(0, FLAVORS_PREVIEW_COUNT)
+                  .map((flavor) => (
+                    <Paper
+                      key={flavor.flavor_name}
+                      component="button"
+                      onClick={() => setSelectedFlavor(flavor.flavor_name)}
+                      sx={{
+                        all: "unset",
+                        cursor: "pointer",
+                        bgcolor: "white",
+                        p: 4,
+                        borderRadius: 4,
+                        textAlign: "center",
+                        border: `1px solid ${alpha(WAFFLE_BROWN, 0.1)}`,
+                        transition: "0.3s",
+                        "&:hover": {
+                          borderColor: LOGO_BLUE,
+                          transform: "translateY(-5px)",
+                          boxShadow: `0 10px 20px ${alpha(LOGO_BLUE, 0.1)}`,
+                        },
+                      }}
+                    >
+                      <Typography variant="subtitle1" fontWeight={900}>
+                        {flavor.flavor_name.toUpperCase()}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: LOGO_PINK, fontWeight: 800 }}>
+                        {categoriesWithFlavors[activeCategory][0].toUpperCase()}
+                      </Typography>
+                    </Paper>
+                  ))}
+              </Box>
+
+              {/* See all button */}
+              {categoriesWithFlavors[activeCategory][1].flavors.length > FLAVORS_PREVIEW_COUNT && (
+                <Box textAlign="center">
+                  <Button
+                    variant="outlined"
+                    onClick={() => setExpandedCategory(categoriesWithFlavors[activeCategory][0])}
+                    sx={{
+                      borderRadius: "50px",
+                      fontWeight: 900,
+                      px: 4,
+                      py: 1.5,
+                      borderColor: LOGO_BLUE,
+                      borderWidth: "2px",
+                      color: LOGO_BLUE,
+                      "&:hover": {
+                        borderWidth: "2px",
+                        bgcolor: alpha(LOGO_BLUE, 0.05),
+                        borderColor: LOGO_BLUE,
+                      },
+                    }}
+                  >
+                    SEE ALL {categoriesWithFlavors[activeCategory][1].flavors.length} FLAVORS
+                  </Button>
+                </Box>
+              )}
+            </>
+          )}
         </Container>
       </Box>
+
+      {/* All Flavors Modal */}
+      <Modal open={!!expandedCategory} onClose={() => setExpandedCategory(null)}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: { xs: "90%", sm: 600 },
+            maxHeight: "80vh",
+            bgcolor: "white",
+            borderRadius: 4,
+            outline: "none",
+            boxShadow: 24,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {/* Modal header */}
+          <Box sx={{ p: 4, borderBottom: `1px solid ${alpha(WAFFLE_BROWN, 0.1)}` }}>
+            <Typography variant="h4" fontWeight={900} color={LOGO_BLUE}>
+              {expandedCategory}
+            </Typography>
+            <Typography variant="body2" color={WAFFLE_BROWN} sx={{ opacity: 0.7 }}>
+              {expandedCategory &&
+                menu?.flavors[expandedCategory]?.flavors.length} flavors available
+            </Typography>
+          </Box>
+
+          {/* Scrollable flavor list */}
+          <Box sx={{ overflowY: "auto", p: 4, flex: 1 }}>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr 1fr", sm: "1fr 1fr 1fr" },
+                gap: 2,
+              }}
+            >
+              {expandedCategory &&
+                menu?.flavors[expandedCategory]?.flavors.map((flavor) => (
+                  <Paper
+                    key={flavor.flavor_name}
+                    component="button"
+                    onClick={() => {
+                      setSelectedFlavor(flavor.flavor_name);
+                      setExpandedCategory(null);
+                    }}
+                    sx={{
+                      all: "unset",
+                      cursor: "pointer",
+                      bgcolor: "white",
+                      p: 3,
+                      borderRadius: 3,
+                      textAlign: "center",
+                      border: `2px solid ${alpha(WAFFLE_BROWN, 0.15)}`,
+                      transition: "0.3s",
+                      "&:hover": {
+                        borderColor: LOGO_BLUE,
+                        transform: "translateY(-3px)",
+                        boxShadow: `0 6px 14px ${alpha(LOGO_BLUE, 0.1)}`,
+                        bgcolor: alpha(LOGO_BLUE, 0.03),
+                      },
+                    }}
+                  >
+                    <Typography variant="body2" fontWeight={900} color={WAFFLE_BROWN}>
+                      {flavor.flavor_name.toUpperCase()}
+                    </Typography>
+                  </Paper>
+                ))}
+            </Box>
+          </Box>
+
+          {/* Modal footer */}
+          <Box sx={{ p: 3, borderTop: `1px solid ${alpha(WAFFLE_BROWN, 0.1)}` }}>
+            <Button
+              fullWidth
+              variant="contained"
+              sx={{ bgcolor: WAFFLE_BROWN, borderRadius: "50px", fontWeight: 900 }}
+              onClick={() => setExpandedCategory(null)}
+            >
+              CLOSE
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
 
       {/* CTA */}
       <Box

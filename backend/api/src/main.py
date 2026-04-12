@@ -107,3 +107,41 @@ def get_flavor_count():
         if not res:
             raise HTTPException(status_code=404, detail="Unable to fetch flavor count")
         return {"flavor_count": res[0]}
+
+@app.get("/flavors/all")
+def get_flavors_all():
+    menu = {}
+    with DBHandler() as curr:
+        curr.execute(
+            """
+            SELECT
+                name,
+                img_url
+            FROM menu
+            WHERE is_active = True;
+            """
+        )
+        for item_type_tup in curr.fetchall():
+            item_type = item_type_tup[0]
+            img_url = item_type_tup[1]
+            menu[item_type] = {
+                "img_url": img_url,
+                "flavors": {}
+            }
+        for item_type in menu.keys():
+            curr.execute(
+                """
+                SELECT
+                    name,
+                    description,
+                    updated_at
+                FROM flavor
+                WHERE menu_id = (SELECT menu_id FROM menu WHERE name = %s);
+                """, (item_type, )
+            )
+            res = curr.fetchall()
+            flavors = res
+            if len(res) > 0:
+                flavors = [{ "flavor_name": flavor[0], "description": flavor[1], "updated_at": flavor[2]} for flavor in res]
+            menu[item_type]['flavors'] = flavors
+        return {"flavors": menu}
