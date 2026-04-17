@@ -14,15 +14,19 @@ CREATE TABLE owner (
 CREATE TABLE shop (
   shop_id SERIAL PRIMARY KEY,
   owner_id INT NOT NULL REFERENCES owner(owner_id) ON DELETE RESTRICT,
-  address TEXT,
+  street VARCHAR(55),
+  city VARCHAR(20),
+  state VARCHAR(2),
   phone_number VARCHAR(20),
   instagram VARCHAR(255),
+  open_time INT NOT NULL,
+  close_time INT NOT NULL,
   logo_filename VARCHAR(255)
 );
 
 CREATE TABLE menu (
   menu_id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
+  name VARCHAR(255) NOT NULL UNIQUE,
   created_by INT NOT NULL REFERENCES owner(owner_id) ON DELETE CASCADE,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   is_active BOOLEAN NOT NULL DEFAULT TRUE,
@@ -74,3 +78,122 @@ CREATE TABLE feedback (
   submitted_at TIMESTAMP NOT NULL DEFAULT NOW(),
   status VARCHAR(50) NOT NULL DEFAULT 'pending'
 );
+
+-- Insert starting shop
+INSERT INTO owner (
+  name,
+  email,
+  password_hash
+) VALUES (
+  'Admin',
+  'admin@admin.com',
+  'hash'
+);
+
+INSERT INTO shop (
+  owner_id,
+  street,
+  city,
+  state,
+  phone_number,
+  instagram,
+  open_time,
+  close_time
+) VALUES (
+  (SELECT owner_id FROM owner WHERE name = 'Admin'),
+  '1510 E Lincoln Ave',
+  'Orange',
+  'CA',
+  '(657) 335-9987',
+  'rogershomemadeicecream',
+  720,
+  1260
+);
+
+WITH admin AS (
+  SELECT owner_id FROM owner WHERE name = 'Admin'
+)
+INSERT INTO menu (name, created_by)
+SELECT name, owner_id
+FROM (VALUES ('Ice Cream'), ('Italian Ice'), ('Banana Split'), ('Shake'), ('Sunday')) AS items(name)
+CROSS JOIN admin;
+
+WITH menu AS (
+  SELECT menu_id FROM menu WHERE name = 'Ice Cream'
+)
+INSERT INTO flavor (menu_id, name)
+SELECT menu_id, name
+FROM (VALUES 
+    ('Banana'),
+    ('Berry Yogurt'),
+    ('Black Walnut'),
+    ('Blueberry Cheesecake'),
+    ('Blue Monster'),
+    ('Brownie'),
+    ('Birthday Cake'),
+    ('Bubblegum'),
+    ('Butter Pecan'),
+    ('Butterscotch Crunch'),
+    ('Cherry'),
+    ('Chocolate Chip'),
+    ('Chocolate Oreo'),
+    ('Cinnamon Toast Crunch'),
+    ('Coconut pineapple'),
+    ('Coffee'),
+    ('Cookie dough'),
+    ('Cookies & Cream'),
+    ('Corn'),
+    ('Dark Chocolate'),
+    ('Eggnog'),
+    ('Fruity Pebbles'),
+    ('Guava'),
+    ('Kit Kat'),
+    ('Key-lime Pie'),
+    ('Lime'),
+    ('Mango'),
+    ('Milk & Cookies'),
+    ('Milk Chocolate'),
+    ('Mint & Chip'),
+    ('Orange Cream Float'),
+    ('Oreo Cheesecake'),
+    ('Pistachio'),
+    ('Pralines & Cream'),
+    ('Raspberry Swirl'),
+    ('Rainbow Sherbet'),
+    ('Reese''s Peanut Butter Cup'),
+    ('Rocky Road'),
+    ('Salted Caramel'),
+    ('Snickers'),
+    ('Strawberries & Cream'),
+    ('Strawberry'),
+    ('Strawberry Cheesecake'),
+    ('Super Nutty'),
+    ('S''mores'),
+    ('Taro'),
+    ('Twix'),
+    ('Vanilla'),
+    ('Vanilla w/ Carmel')
+  ) AS flavors(name)
+CROSS JOIN menu;
+
+WITH menu AS (
+  SELECT menu_id FROM menu WHERE name = 'Italian Ice'
+)
+INSERT INTO flavor (menu_id, name)
+SELECT menu_id, name
+FROM (VALUES 
+    ('Blue Raspberry'),
+    ('Cherry'),
+    ('Cotton Candy'),
+    ('Lemon'),
+    ('Mango'),
+    ('Mango w/ Chamoy'),
+    ('Orange'),
+    ('Pineapple'),
+    ('Root Beer'),
+    ('Sour Apple'),
+    ('Strawberry'),
+    ('Strawberry Lemonade'),
+    ('Watermelon')
+  ) AS flavors(name)
+CROSS JOIN menu;

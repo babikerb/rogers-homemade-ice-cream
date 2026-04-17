@@ -1,8 +1,17 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from DBHandler import DBHandler
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class OwnerCreate(BaseModel):
     name: str
@@ -23,7 +32,11 @@ def insert_owner(body: OwnerCreate):
             "INSERT INTO owner (name, email, password_hash) VALUES (%s, %s, %s) RETURNING owner_id;",
             (body.name, body.email, body.password_hash)
         )
-        owner_id = curr.fetchone()[0]
+        res = curr.fetchone()
+        if res is None:
+            owner_id = None
+        else:
+            owner_id = res[0]
     return {"owner_id": owner_id} 
 
 @app.get("/owner/{owner_id}")
@@ -52,3 +65,83 @@ def insert_shop(body: ShopCreate):
     if not res:
         raise HTTPException(status_code=404, detail="Shop not created")
     return {"shop_id": res}
+
+@app.get("/shop/{shop_id}")
+def get_shop(shop_id: int):
+    with DBHandler() as curr:
+        curr.execute(
+            """
+            SELECT
+                street,
+                city,
+                state,
+                phone_number,
+                instagram,
+                open_time,
+                close_time
+            FROM shop
+            WHERE shop_id = %s;
+            """, (shop_id, )
+        )
+        res = curr.fetchone()
+        if not res:
+            raise HTTPException(status_code=404, detail="Shop not found")
+        # Build return dictionary
+        (street, city, state, phone_number, instagram, open_time, close_time) = res
+        shop = {
+            "street": street,
+            "city": city,
+            "state": state,
+            "phone_number": phone_number,
+            "instagram": instagram,
+            "open_time": open_time,
+            "close_time": close_time
+        }
+        return {"shop": shop}
+
+@app.get("/flavors/count")
+def get_flavor_count():
+    with DBHandler() as curr:
+        curr.execute("SELECT COUNT(*) FROM flavor;")
+        res = curr.fetchone()
+        if not res:
+            raise HTTPException(status_code=404, detail="Unable to fetch flavor count")
+        return {"flavor_count": res[0]}
+
+@app.get("/flavors/all")
+def get_flavors_all():
+    menu = {}
+    with DBHandler() as curr:
+        curr.execute(
+            """
+            SELECT
+                name,
+                img_url
+            FROM menu
+            WHERE is_active = True;
+            """
+        )
+        for item_type_tup in curr.fetchall():
+            item_type = item_type_tup[0]
+            img_url = item_type_tup[1]
+            menu[item_type] = {
+                "img_url": img_url,
+                "flavors": {}
+            }
+        for item_type in menu.keys():
+            curr.execute(
+                """
+                SELECT
+                    name,
+                    description,
+                    updated_at
+                FROM flavor
+                WHERE menu_id = (SELECT menu_id FROM menu WHERE name = %s);
+                """, (item_type, )
+            )
+            res = curr.fetchall()
+            flavors = res
+            if len(res) > 0:
+                flavors = [{ "flavor_name": flavor[0], "description": flavor[1], "updated_at": flavor[2]} for flavor in res]
+            menu[item_type]['flavors'] = flavors
+        return {"flavors": menu}
