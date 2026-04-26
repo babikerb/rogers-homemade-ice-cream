@@ -82,6 +82,7 @@ export default function RogersHomemade() {
   const [selectedFlavor, setSelectedFlavor] = useState<string | null>(null);
   const [shop, setShop] = useState<{ street: String, city: String, state: String, phone_number: String, instagram: String, open_time: number; close_time: number } | null>(null);
   const [menu, setMenu] = useState<Menu | null>(null);
+  const [prices, setPrices] = useState<{ serving_size: string; price_amount: number }[]>([]);
   const [activeCategory, setActiveCategory] = useState(0);
   const [rotationProgress, setRotationProgress] = useState(0);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
@@ -128,6 +129,14 @@ export default function RogersHomemade() {
           open_time: data.shop.open_time,
           close_time: data.shop.close_time,
         });
+      });
+  }, []);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/prices")
+      .then((res) => res.json())
+      .then((data) => {
+        setPrices(data.prices);
       });
   }, []);
 
@@ -772,12 +781,33 @@ export default function RogersHomemade() {
             boxShadow: 24,
           }}
         >
-          <Typography variant="h4" fontWeight={900} color={LOGO_BLUE} mb={2}>
+          <Typography variant="h4" fontWeight={900} color={LOGO_BLUE} mb={1}>
             {selectedFlavor}
           </Typography>
-          <Typography mb={4}>
+          <Typography mb={3} sx={{ opacity: 0.7 }}>
             Homemade daily in small batches for the perfect texture and flavor.
           </Typography>
+          {prices.length > 0 && (
+            <Box mb={4}>
+              {prices.map((p) => (
+                <Box
+                  key={p.serving_size}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    py: 1,
+                    borderBottom: `1px solid ${alpha(WAFFLE_BROWN, 0.1)}`,
+                  }}
+                >
+                  <Typography fontWeight={700}>{p.serving_size}</Typography>
+                  <Typography fontWeight={900} color={LOGO_BLUE}>
+                    ${p.price_amount.toFixed(2)}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          )}
           <Button
             fullWidth
             variant="contained"

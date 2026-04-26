@@ -99,6 +99,20 @@ def get_shop(shop_id: int):
         }
         return {"shop": shop}
 
+@app.get("/prices")
+def get_prices():
+    with DBHandler() as curr:
+        curr.execute(
+            """
+            SELECT DISTINCT serving_size, price_amount
+            FROM price
+            ORDER BY price_amount;
+            """
+        )
+        res = curr.fetchall()
+    prices = [{"serving_size": row[0], "price_amount": float(row[1])} for row in res]
+    return {"prices": prices}
+
 @app.get("/flavors/count")
 def get_flavor_count():
     with DBHandler() as curr:
