@@ -79,7 +79,7 @@ const formatMinuteTime = (minutes: number): string => {
 };
 
 export default function RogersHomemade() {
-  const [selectedFlavor, setSelectedFlavor] = useState<string | null>(null);
+  const [selectedFlavor, setSelectedFlavor] = useState<FlavorEntry | null>(null);
   const [shop, setShop] = useState<{ street: String, city: String, state: String, phone_number: String, instagram: String, open_time: number; close_time: number } | null>(null);
   const [menu, setMenu] = useState<Menu | null>(null);
   const [prices, setPrices] = useState<{ serving_size: string; price_amount: number }[]>([]);
@@ -537,7 +537,7 @@ export default function RogersHomemade() {
                     <Paper
                       key={flavor.flavor_name}
                       component="button"
-                      onClick={() => setSelectedFlavor(flavor.flavor_name)}
+                      onClick={() => setSelectedFlavor(flavor)}
                       sx={{
                         all: "unset",
                         cursor: "pointer",
@@ -638,7 +638,7 @@ export default function RogersHomemade() {
                     key={flavor.flavor_name}
                     component="button"
                     onClick={() => {
-                      setSelectedFlavor(flavor.flavor_name);
+                      setSelectedFlavor(flavor);
                       setExpandedCategory(null);
                     }}
                     sx={{
@@ -782,10 +782,10 @@ export default function RogersHomemade() {
           }}
         >
           <Typography variant="h4" fontWeight={900} color={LOGO_BLUE} mb={1}>
-            {selectedFlavor}
+            {selectedFlavor?.flavor_name}
           </Typography>
           <Typography mb={3} sx={{ opacity: 0.7 }}>
-            Homemade daily in small batches for the perfect texture and flavor.
+            {selectedFlavor?.description ?? "Homemade daily in small batches for the perfect texture and flavor."}
           </Typography>
           {prices.length > 0 && (
             <Box mb={4}>
