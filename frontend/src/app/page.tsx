@@ -28,7 +28,7 @@ const DEEP_PINK = "#D81B60";
 const WAFFLE_BROWN = "#5D3A1A";
 const OFF_WHITE = "#FAF9F6";
 const FLAVORS_PREVIEW_COUNT = 16;
-const ROTATION_INTERVAL = 20000;
+const ROTATION_INTERVAL = 30000;
 
 type FlavorEntry = {
   flavor_name: string;
@@ -532,6 +532,7 @@ export default function RogersHomemade() {
                 }}
               >
                 {categoriesWithFlavors[activeCategory][1].flavors
+                  .sort((a, b) => a.flavor_name.localeCompare(b.flavor_name))
                   .slice(0, FLAVORS_PREVIEW_COUNT)
                   .map((flavor) => (
                     <Paper
@@ -784,7 +785,7 @@ export default function RogersHomemade() {
           <Typography variant="h4" fontWeight={900} color={LOGO_BLUE} mb={1}>
             {selectedFlavor?.flavor_name}
           </Typography>
-          <Typography mb={3} sx={{ opacity: 0.7 }}>
+          <Typography mb={3} sx={{ opacity: 0.7, color: 'black' }}>
             {selectedFlavor?.description ?? "Homemade daily in small batches for the perfect texture and flavor."}
           </Typography>
           {prices.length > 0 && (
@@ -798,6 +799,7 @@ export default function RogersHomemade() {
                     alignItems: "center",
                     py: 1,
                     borderBottom: `1px solid ${alpha(WAFFLE_BROWN, 0.1)}`,
+                    color: 'black'
                   }}
                 >
                   <Typography fontWeight={700}>{p.serving_size}</Typography>
