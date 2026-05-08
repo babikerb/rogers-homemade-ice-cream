@@ -28,7 +28,7 @@ const DEEP_PINK = "#D81B60";
 const WAFFLE_BROWN = "#5D3A1A";
 const OFF_WHITE = "#FAF9F6";
 const FLAVORS_PREVIEW_COUNT = 16;
-const ROTATION_INTERVAL = 20000;
+const ROTATION_INTERVAL = 30000;
 
 type FlavorEntry = {
   flavor_name: string;
@@ -532,6 +532,7 @@ export default function RogersHomemade() {
                 }}
               >
                 {categoriesWithFlavors[activeCategory][1].flavors
+                  .sort((a, b) => a.flavor_name.localeCompare(b.flavor_name))
                   .slice(0, FLAVORS_PREVIEW_COUNT)
                   .map((flavor) => (
                     <Paper
@@ -721,21 +722,24 @@ export default function RogersHomemade() {
                     <LocationOn sx={{ color: LOGO_PINK }} />
                     <Box>
                       <Typography fontWeight={900}>ADDRESS</Typography>
-                      <Typography>1510 E Lincoln Ave, Orange, CA</Typography>
+                      <Typography>{shop?.street}, {shop?.city}, {shop?.state}</Typography>
                     </Box>
                   </Stack>
                   <Stack direction="row" spacing={3}>
                     <AccessTime sx={{ color: LOGO_PINK }} />
                     <Box>
                       <Typography fontWeight={900}>HOURS</Typography>
-                      <Typography>Daily: 12:00pm - 9:00pm</Typography>
+                      <Typography>Daily:
+                        {shop
+                          ? `${formatMinuteTime(shop.open_time)} — ${formatMinuteTime(shop.close_time)}`
+                          : "Loading..."}</Typography>
                     </Box>
                   </Stack>
                   <Stack direction="row" spacing={3}>
                     <Phone sx={{ color: LOGO_PINK }} />
                     <Box>
                       <Typography fontWeight={900}>GET IN TOUCH</Typography>
-                      <Typography>(657) 335-9987</Typography>
+                      <Typography>{shop ? shop.phone_number : "Loading..."}</Typography>
                     </Box>
                   </Stack>
                 </Stack>
@@ -784,7 +788,7 @@ export default function RogersHomemade() {
           <Typography variant="h4" fontWeight={900} color={LOGO_BLUE} mb={1}>
             {selectedFlavor?.flavor_name}
           </Typography>
-          <Typography mb={3} sx={{ opacity: 0.7 }}>
+          <Typography mb={3} sx={{ opacity: 0.7, color: 'black' }}>
             {selectedFlavor?.description ?? "Homemade daily in small batches for the perfect texture and flavor."}
           </Typography>
           {prices.length > 0 && (
@@ -798,6 +802,7 @@ export default function RogersHomemade() {
                     alignItems: "center",
                     py: 1,
                     borderBottom: `1px solid ${alpha(WAFFLE_BROWN, 0.1)}`,
+                    color: 'black'
                   }}
                 >
                   <Typography fontWeight={700}>{p.serving_size}</Typography>

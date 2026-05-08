@@ -32,6 +32,9 @@ class ShopUpdate(BaseModel):
     close_time: Optional[int] = None
     phone_number: Optional[str] = None
     instagram: Optional[str] = None
+    street: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
 
 class LoginBody(BaseModel):
     email: str
@@ -154,6 +157,15 @@ def update_shop(shop_id: int, body: ShopUpdate, owner_id: int = Depends(require_
     if body.instagram is not None:
         fields.append("instagram = %s")
         values.append(body.instagram)
+    if body.street is not None:
+        fields.append("street = %s")
+        values.append(body.street)
+    if body.city is not None:
+        fields.append("city = %s")
+        values.append(body.city)
+    if body.state is not None:
+        fields.append("state = %s")
+        values.append(body.state)
     if not fields:
         return {"ok": True}
     values.append(shop_id)

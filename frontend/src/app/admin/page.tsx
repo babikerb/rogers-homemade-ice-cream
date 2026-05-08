@@ -40,6 +40,9 @@ type Category = { menu_id: number; name: string; flavors: Flavor[] };
 type Price = { serving_size: string; price_amount: number };
 type Shop = {
   phone_number: string;
+  street: string;
+  city: string;
+  state: string;
   instagram: string;
   open_time: number;
   close_time: number;
@@ -348,6 +351,9 @@ function ShopInfoSection() {
   const [openTime, setOpenTime] = useState("");
   const [closeTime, setCloseTime] = useState("");
   const [phone, setPhone] = useState("");
+  const [street, setStreet] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
   const [instagram, setInstagram] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -357,6 +363,9 @@ function ShopInfoSection() {
       setOpenTime(minsToTime(data.shop.open_time));
       setCloseTime(minsToTime(data.shop.close_time));
       setPhone(data.shop.phone_number);
+      setStreet(data.shop.street);
+      setCity(data.shop.city);
+      setState(data.shop.state);
       setInstagram(data.shop.instagram);
     });
   }, []);
@@ -364,7 +373,15 @@ function ShopInfoSection() {
   const save = async () => {
     const res = await authFetch(`${API}/shop/1`, {
       method: "PUT",
-      body: JSON.stringify({ open_time: timeToMins(openTime), close_time: timeToMins(closeTime), phone_number: phone, instagram }),
+      body: JSON.stringify({
+        open_time: timeToMins(openTime),
+        close_time: timeToMins(closeTime),
+        phone_number: phone,
+        street: street,
+        city: city,
+        state: state,
+        instagram
+      }),
     });
     if (res.ok) setSuccess("Shop info updated.");
     else setError("Failed to update shop info.");
@@ -382,6 +399,11 @@ function ShopInfoSection() {
             <TextField label="Close Time" type="time" value={closeTime} onChange={(e) => setCloseTime(e.target.value)} size="small" fullWidth InputLabelProps={{ shrink: true }} />
           </Stack>
           <TextField label="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} size="small" fullWidth />
+          <Stack direction="row" spacing={1}>
+            <TextField label="Street" value={street} onChange={(e) => setStreet(e.target.value)} size="small" fullWidth InputLabelProps={{ shrink: true }} />
+            <TextField label="City" value={city} onChange={(e) => setCity(e.target.value)} size="small" fullWidth InputLabelProps={{ shrink: true }} />
+            <TextField label="State" value={state} onChange={(e) => setState(e.target.value)} size="small" fullWidth InputLabelProps={{ shrink: true }} />
+          </Stack>
           <TextField label="Instagram Handle" value={instagram} onChange={(e) => setInstagram(e.target.value)} size="small" fullWidth placeholder="rogershomemadeicecream" />
           <Button
             variant="contained"
