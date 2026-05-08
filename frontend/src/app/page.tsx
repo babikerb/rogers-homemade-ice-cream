@@ -722,21 +722,24 @@ export default function RogersHomemade() {
                     <LocationOn sx={{ color: LOGO_PINK }} />
                     <Box>
                       <Typography fontWeight={900}>ADDRESS</Typography>
-                      <Typography>1510 E Lincoln Ave, Orange, CA</Typography>
+                      <Typography>{shop?.street}, {shop?.city}, {shop?.state}</Typography>
                     </Box>
                   </Stack>
                   <Stack direction="row" spacing={3}>
                     <AccessTime sx={{ color: LOGO_PINK }} />
                     <Box>
                       <Typography fontWeight={900}>HOURS</Typography>
-                      <Typography>Daily: 12:00pm - 9:00pm</Typography>
+                      <Typography>Daily:
+                        {shop
+                          ? `${formatMinuteTime(shop.open_time)} — ${formatMinuteTime(shop.close_time)}`
+                          : "Loading..."}</Typography>
                     </Box>
                   </Stack>
                   <Stack direction="row" spacing={3}>
                     <Phone sx={{ color: LOGO_PINK }} />
                     <Box>
                       <Typography fontWeight={900}>GET IN TOUCH</Typography>
-                      <Typography>(657) 335-9987</Typography>
+                      <Typography>{shop ? shop.phone_number : "Loading..."}</Typography>
                     </Box>
                   </Stack>
                 </Stack>
